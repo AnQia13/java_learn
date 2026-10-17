@@ -56,6 +56,13 @@
                 <configuration>
                     <!-- 显式配置一遍，避免不同 Maven 版本自带的旧插件不支持 release -->
                     <release>${maven.compiler.release}</release>
+
+                    <!-- 微基准类依赖 JMH，而 JMH 只在 benchmarks profile 里才有。
+                         所以默认构建干脆不编译这个包，否则会报「程序包 org.openjdk.jmh 不存在」。
+                         加 -Pbenchmarks 时，那个 profile 会把这条规则覆盖掉。 -->
+                    <testExcludes>
+                        <testExclude>com/hczn/learn/benchmark/**</testExclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -94,6 +101,9 @@
                         <version>3.13.0</version>
                         <configuration>
                             <release>${maven.compiler.release}</release>
+                            <!-- combine.self="override"：把这个元素整体替换掉，
+                                 从而取消默认构建里「不编译 benchmark 包」的排除规则 -->
+                            <testExcludes combine.self="override"/>
                             <!-- JMH 靠注解处理器生成基准代码，必须显式声明，
                                  否则 @Benchmark 方法会被完全忽略（而且不报错，很坑） -->
                             <annotationProcessorPaths>

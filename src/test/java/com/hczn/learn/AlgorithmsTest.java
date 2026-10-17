@@ -8,6 +8,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -80,9 +81,11 @@ public class AlgorithmsTest {
         assertEquals(-2, Algorithms.maxSubArray(new int[]{-2, -5}));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void maxSubArrayShouldRejectEmpty() {
-        Algorithms.maxSubArray(new int[0]);
+        IllegalArgumentException error =
+                assertThrows(IllegalArgumentException.class, () -> Algorithms.maxSubArray(new int[0]));
+        assertTrue(error.getMessage().contains("空"));
     }
 
     @Test

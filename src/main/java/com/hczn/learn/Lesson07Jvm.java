@@ -19,7 +19,7 @@ import java.util.List;
  * <p>本课覆盖：内存结构（堆/栈/方法区）、栈溢出、字符串常量池、GC 与四种引用、
  * 类加载与双亲委派、反射。
  *
- * <p>配套：{@link TextUtils} + {@code src/test/java/.../TextUtilsTest.java} 演示单元测试。
+ * <p>配套：{@link TextUtils} + {@code src/test/java/com/hczn/learn/TextUtilsTest.java} 演示单元测试。
  * 命令行打包（javac / java / jar / Maven 生命周期）见 docs/java-learning-path.md。
  */
 public class Lesson07Jvm {

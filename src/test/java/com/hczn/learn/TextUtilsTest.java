@@ -11,6 +11,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -111,10 +112,12 @@ public class TextUtilsTest {
         assertThrows(IllegalArgumentException.class, () -> TextUtils.reverse(null));
     }
 
-    /** assertThrows 的进阶用法：用 try/catch 之外的第二种姿势断言「没有抛异常」。 */
+    /** assertThrows 还有带失败信息参数的重载，断言失败时更容易定位。 */
     @Test
-    public void assertDoesNotThrowShouldPassForValidInput() {
-        assertEquals(5, assertDoesNotThrow(() -> TextUtils.max(new int[]{5})));
+    public void maxShouldRejectEmptyArrayWithMessage() {
+        assertThrows("空数组应该抛 IllegalArgumentException",
+                IllegalArgumentException.class,
+                () -> TextUtils.max(new int[0]));
     }
 
     // ==================== 其他常用注解 ====================

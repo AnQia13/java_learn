@@ -1,7 +1,7 @@
 # Java 学习路径（配合本仓库）
 
 > 工程配置：Maven Wrapper（`./mvnw`，Maven 3.9.9）+ JDK 21（pom 里 `java.version=21`）。
-> 源码 UTF-8，JUnit 4 scope=test。
+> 源码 UTF-8，JUnit 4.13.2 scope=test，H2 2.2.224 scope=runtime（只有第 10 课用）。
 
 ## 怎么用这份路径
 
@@ -9,25 +9,34 @@
 2. 每课末尾都有「练习」，必须动手敲，不要只看。
 3. 每课都是一个可以独立运行的 `main`，改一改、跑一跑，看输出变化。
 
+> 自学推荐配合 [`学员手册.md`](./学员手册.md)：每课一页，只有目标 / 知识点 / 易错提醒 / 练习 / 自测答案。
+> 想把每课当一堂课来上，看 [`教案.md`](./教案.md)（讲师版）。
+
 ```bash
 cd /Users/anqia/Work/GitHub/java_learn
 
 ./mvnw compile                    # 编译
-./mvnw test                       # 跑测试（当前 49 个用例，1 个 @Ignore 跳过）
+./mvnw test                       # 跑测试（当前 91 个用例，1 个 @Ignore 跳过）
 ./mvnw package                    # 打包成 target/testjava-1.0-SNAPSHOT.jar
 
-# 运行任意一课
-java -cp target/classes com.hczn.learn.Lesson01Basics
-java -cp target/classes com.hczn.learn.Lesson02Oop
-java -cp target/classes com.hczn.learn.Lesson03Collections
-java -cp target/classes com.hczn.learn.Lesson04ExceptionsIo
-java -cp target/classes com.hczn.learn.Lesson05Concurrency
-java -cp target/classes com.hczn.learn.Lesson06ModernJava
-java -cp target/classes com.hczn.learn.Lesson07Jvm
+# 运行任意一课（推荐用脚本，它会自动把第三方依赖带上 classpath）
+./scripts/run.sh com.hczn.learn.Lesson01Basics
+./scripts/run.sh com.hczn.learn.Lesson02Oop
+./scripts/run.sh com.hczn.learn.Lesson03Collections
+./scripts/run.sh com.hczn.learn.Lesson04ExceptionsIo
+./scripts/run.sh com.hczn.learn.Lesson05Concurrency
+./scripts/run.sh com.hczn.learn.Lesson06ModernJava
+./scripts/run.sh com.hczn.learn.Lesson07Jvm
+./scripts/run.sh com.hczn.learn.Lesson08Algorithms
+./scripts/run.sh com.hczn.learn.Lesson09Network
+./scripts/run.sh com.hczn.learn.Lesson10Jdbc
+./scripts/run.sh com.hczn.learn.Lesson11Collections
+
+# 不带第三方依赖的课也可以直接手写 classpath（少一层包装，更直观）
 java -cp target/classes com.hczn.learn.Lesson08Algorithms
 ```
 
-用 IDEA 的话，直接点对应 `main` 方法左边的绿色三角。
+用 IDEA 的话，直接点对应 `main` 方法左边的绿色三角（依赖 IDEA 会自动加）。
 
 ---
 
@@ -43,20 +52,44 @@ java -cp target/classes com.hczn.learn.Lesson08Algorithms
 | **06** | `Lesson06ModernJava.java` | Java 8+ 现代写法 | Lambda、函数式接口、方法引用、`Stream`、`Collectors`、`Optional`、`java.time`、record / 模式匹配 / switch 表达式 / 文本块 |
 | **07** | `Lesson07Jvm.java` + `TextUtils.java` / `TextUtilsTest.java` | JVM 与工程化 | 堆 / 栈 / 方法区、可达性分析与分代回收、四种引用、字符串常量池、双亲委派与类初始化、反射、`javac`/`java`/`jar`、Maven 生命周期、JUnit |
 | **08** | `Lesson08Algorithms.java` + `Algorithms.java` / `AlgorithmsTest.java` | 算法与数据结构 | 复杂度分析、双指针、哈希表（空间换时间）、链表（哑节点/快慢指针）、栈与单调栈、二叉树遍历、快排/归并/二分、动态规划 |
+| **09** | `Lesson09Network.java` | 网络编程 | IP/端口/TCP vs UDP、URI 解析、`NetworkInterface`、`ServerSocket`/`Socket` 回显、`DatagramSocket`、JDK 11+ `HttpClient`（同步/异步） |
+| **10** | `Lesson10Jdbc.java` + `WalletService.java` / `WalletServiceTest.java` | JDBC 与数据库 | JDBC 五步曲、`Statement` vs `PreparedStatement`、**SQL 注入实测**、`ResultSet`、影响行数、事务与回滚、`addBatch`、元数据、连接池 |
+| **11** | `Lesson11Collections.java` + `MiniArrayList.java` / `MiniHashMap.java` / `MiniCollectionsTest.java` | 手写集合，看穿底层 | 数组扩容 1.5 倍、中间插入 O(n)、fail-fast 与 `modCount`（含「有时不抛异常」的坑）、哈希桶与冲突、扰动函数、2 的幂容量、扩容 rehash、可变 key 陷阱、JMH 微基准 |
 
 ## 仓库里保留的练习文件
 
-你原来写的那些练习文件已经删掉了，现在保留这两个作为对照练习：
+你原来写的练习文件基本都删掉了，现在只剩这一个：
 
 | 文件 | 内容 |
 | --- | --- |
-| `src/test/java/com/hczn/java/NIOTest.java` | `Buffer` / `Channel`（第 4 课相关） |
 | `src/test/java/com/hczn/java/TestDemo.java` | 两数之和、两数相加等算法题 |
 
 > 注意：`TestDemo` 里的 `ListNode` 是非静态内部类，必须依附 `TestDemo` 实例才能 `new`
 > （第 2 课的内部类知识点）。
 > 第 8 课里的 `Algorithms.ListNode` 写成了「静态嵌套类」，可以直接 `new Algorithms.ListNode(1)`，
 > 对比着看就能明白 `static` 的差别。
+
+## 外部依赖与运行方式
+
+| 依赖 | 版本 | scope | 用途 |
+| --- | --- | --- | --- |
+| `junit:junit` | 4.13.2 | test | 单元测试（4.13 才有 `assertThrows`） |
+| `com.h2database:h2` | 2.2.224 | runtime | 第 10 课的内存数据库 |
+
+`h2` 为什么要用 `runtime` 而不是 `compile`？因为第 10 课的代码只 `import java.sql.*`，
+编译期根本不认识 H2 —— 驱动是靠 JDBC 4.0 的 SPI 在运行时自动发现的。
+这正是「面向接口编程」的好处：换数据库只改 pom 和连接串，业务代码一行不动。
+
+> 代价是：`java -cp target/classes` 少了 H2 的 jar。所以第 10 课要用
+> `./scripts/run.sh`，它会先让 Maven 算出完整 classpath 再启动。
+
+### 三个脚本
+
+```bash
+./scripts/run.sh com.hczn.learn.Lesson10Jdbc    # 编译 + 带上依赖 + 运行任意一课
+./scripts/benchmark.sh                          # 跑全部 JMH 微基准
+./scripts/benchmark.sh ".*TwoSumBenchmark.*"    # 只跑匹配的基准
+```
 
 ## 第 7 课配套：命令行速查
 
@@ -118,7 +151,8 @@ java -Xlog:gc -cp target/classes com.hczn.learn.Lesson07Jvm          # JDK 9+ �
 ./mvnw package -DskipTests    # 跳过测试打包
 
 ./mvnw test -Dtest=TextUtilsTest          # 只跑某个测试类
-./mvnw test -Dtest='!NIOTest'             # 排除某个测试类
+./mvnw test -Dtest='WalletServiceTest,MiniCollectionsTest'   # 跑多个
+./mvnw test -Dtest='!TestDemo'            # 排除某个测试类
 ```
 
 ### 写 JUnit 测试的要点
@@ -126,9 +160,19 @@ java -Xlog:gc -cp target/classes com.hczn.learn.Lesson07Jvm          # JDK 9+ �
 - 类名以 `Test` 结尾（或 `Test` 开头），Surefire 才认得；方法必须 `public void`、无参数。
 - 断言把「期望值」写在前面：`assertEquals(期望, 实际)`，失败信息才好读。
 - 数组/字符串要逐个比内容，用 `assertArrayEquals`，别用 `assertEquals`（那比的是引用）。
-- JUnit 4.12 用 `@Test(expected = XxxException.class)` 断言异常；`assertThrows` 要 4.13+。
-- 测试要测边界：空串、单元素、全负数、null 入参。
-- 纯函数最好测；依赖数据库/网络/当前时间的代码先重构再测。
+- 断言异常用 `assertThrows`（4.13+），它能拿到异常对象，所以还能顺便断言消息：
+  ```java
+  IllegalArgumentException error =
+          assertThrows(IllegalArgumentException.class, () -> TextUtils.max(new int[0]));
+  assertTrue(error.getMessage().contains("空"));
+  ```
+  `@Test(expected = ...)` 是老写法，只能证明「抛了」，说不出抛得对不对。
+  ⚠ JUnit 4 里**没有** `assertDoesNotThrow` / `assertTimeout`，那是 JUnit 5 的 API。
+- `BigDecimal` 不要用 `assertEquals` 比 —— scale 不同时 `equals` 就为 `false`，
+  要用 `compareTo(...) == 0`。
+- 测试要测边界：空串、单元素、全负数、null 入参、越界下标。
+- 纯函数最好测；依赖数据库/网络/当前时间的代码先重构再测
+  （第 10 课把转账逻辑抽到 `WalletService` 就是为了这个）。
 
 ## 第 8 课配套：算法速查
 
@@ -136,7 +180,7 @@ java -Xlog:gc -cp target/classes com.hczn.learn.Lesson07Jvm          # JDK 9+ �
 
 ```bash
 ./mvnw test -Dtest=AlgorithmsTest         # 只跑算法测试（35 个用例）
-java -cp target/classes com.hczn.learn.Lesson08Algorithms   # 看演示 + 实测性能对比
+./scripts/run.sh com.hczn.learn.Lesson08Algorithms   # 看演示 + 实测性能对比
 ```
 
 | 主题 | 方法 |
@@ -151,7 +195,70 @@ java -cp target/classes com.hczn.learn.Lesson08Algorithms   # 看演示 + 实测
 
 > 第 8 课里有两段「实测」输出（O(n²) vs O(n) 的哈希表、快排遇到已排序数据退化）。
 > 这些数字受 JIT 和 GC 影响很大，**只看数量级，别当精确基准**。
-> 真正的微基准测试要用 JMH，课里已经用「跑多次取最快」的方式尽量降低误差。
+> 课里用「跑 4 次取最快」的方式尽量降低误差，但真正靠谱的做法是下面第 11 课的 JMH。
+
+## 第 9 课配套：网络编程要点
+
+```bash
+./scripts/run.sh com.hczn.learn.Lesson09Network
+```
+
+- 只有最后一节（`HttpClient` 请求 `example.com`）需要联网，失败会优雅跳过；Socket / UDP 全在本机跑。
+- 服务端用 `new ServerSocket(0)` 让系统分配空闲端口 —— 写死 8080 在别人机器上可能被占用。
+- `accept()` / `read()` 都是阻塞的，必须放单独线程并设超时（`setSoTimeout`），否则会挂死。
+- 文本流一定要显式指定编码（`UTF_8`），否则中文会变成平台默认编码。
+
+## 第 10 课配套：JDBC 要点
+
+```bash
+./scripts/run.sh com.hczn.learn.Lesson10Jdbc
+./mvnw test -Dtest=WalletServiceTest
+```
+
+- 数据库是 H2 内存库，进程退出数据就没了，不用装任何服务。
+- 想看图形界面：`java -cp <h2的jar> org.h2.tools.Console`（连接串填 `jdbc:h2:mem:learn`）。
+- 演示里最重要的一段是 **SQL 注入对比**：同一个恶意输入，拼接 SQL 会返回全表，占位符则查不到。
+- 想换成文件数据库持久化，把 URL 改成 `jdbc:h2:./data/learn` 即可。
+
+## 第 11 课配套：手写集合与 JMH
+
+| 手写实现 | 对应 JDK 类 | 关键结论 |
+| --- | --- | --- |
+| `MiniArrayList` | `java.util.ArrayList` | 随机访问 O(1)、中间增删 O(n)、扩容 1.5 倍、`modCount` 驱动 fail-fast |
+| `MiniHashMap` | `java.util.HashMap` | 数组+链表、容量 2 的幂、扰动函数、负载因子 0.75、冲突退化成 O(n) |
+
+```bash
+./scripts/run.sh com.hczn.learn.Lesson11Collections
+./mvnw test -Dtest=MiniCollectionsTest        # 33 个用例
+```
+
+JMH 微基准放在 `src/test/java/com/hczn/learn/benchmark/`，**默认构建不编译它们**
+（JMH 依赖只在 `benchmarks` profile 里），要用就带上 profile：
+
+```bash
+./scripts/benchmark.sh                                   # 全部（约 1~2 分钟）
+./scripts/benchmark.sh ".*TwoSumBenchmark.*"             # 只跑匹配的
+./scripts/benchmark.sh ".*MapBenchmark.*"                # 手写 HashMap vs JDK HashMap
+```
+
+| 基准类 | 对比内容 |
+| --- | --- |
+| `TwoSumBenchmark` | 暴力 O(n²) vs 哈希表 O(n)，n = 500 / 2000 |
+| `SortBenchmark` | `Arrays.sort` vs 手写快排 vs 归并；含「已排序数据」下快排退化 |
+| `MapBenchmark` | `MiniHashMap` vs `HashMap` 的 get，n = 1000 / 100000 |
+
+实测参考（本机 JDK 21，仅供数量级参考）：
+
+```
+TwoSumBenchmark.bruteForce     500  avgt   34.8 us/op
+TwoSumBenchmark.bruteForce    2000  avgt  544.5 us/op     ← n 涨 4 倍，耗时涨约 16 倍 = O(n²)
+TwoSumBenchmark.hashTable      500  avgt    6.4 us/op
+TwoSumBenchmark.hashTable     2000  avgt   34.0 us/op     ← 接近线性
+```
+
+> 想让 MiniHashMap 也体验一把 O(n)：把 `spread()` 直接改成 `return key.hashCode();`
+> 再用一个 `hashCode()` 恒定的 key 跑 `MapBenchmark`，数字会非常难看。
+> 这就是「一个好的 hashCode 值多少钱」。
 
 ## 推荐节奏
 
