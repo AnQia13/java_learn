@@ -1,0 +1,24 @@
+# ===== Maven 编译产物 =====
+target/
+
+# ===== 编译出的 class 文件（以防散落在源码目录）=====
+*.class
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ===== Eclipse / VS Code（备着，万一以后换 IDE）=====
+.settings/
+.classpath
+.project
+.vscode/
+
+# ===== macOS =====
+.DS_Store
+
+# ===== 日志 =====
+*.log

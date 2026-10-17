@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>testjava</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- ===== Java 版本：只需要改这一处 ===== -->
+        <!-- 可选值：8 / 11 / 17 / 21（17 和 21 是 LTS，本机装的是 21） -->
+        <java.version>21</java.version>
+
+        <!-- 推荐用 release 而不是 source/target：
+             release 会让编译器同时校验「语法」和「可用的 JDK API」，
+             避免出现「编译通过但运行时报 NoSuchMethodError」的情况 -->
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+
+        <!-- 源码里有中文注释和字符串，必须显式声明 UTF-8，
+             否则在非 UTF-8 默认编码的系统上会乱码或编译报错 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- 测试框架：源码里只在 src/test/java 下使用，
+             所以 scope 必须是 test，这样打包进 jar 的不会是它。
+             4.13.2 相比 4.12 多了 assertThrows / assertTimeout 等现代断言 -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 第 10 课用的内存数据库。
+             scope=runtime 是故意的：lesson 代码里只 import java.sql.*，
+             编译期完全不依赖具体数据库，运行时才通过 SPI 自动发现驱动。
+             这也正好演示了「面向 JDBC 接口编程，不面向某个数据库编程」 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <!-- 显式配置一遍，避免不同 Maven 版本自带的旧插件不支持 release -->
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--
+          微基准测试（JMH）是可选的，所以放进独立 profile：
+          默认构建不会下载 JMH，也不会因为注解处理器拖慢编译。
+
+          用法：
+            ./mvnw -Pbenchmarks test-compile
+            ./scripts/benchmark.sh
+        -->
+        <profile>
+            <id>benchmarks</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openjdk.jmh</groupId>
+                    <artifactId>jmh-core</artifactId>
+                    <version>1.37</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjdk.jmh</groupId>
+                    <artifactId>jmh-generator-annprocess</artifactId>
+                    <version>1.37</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.13.0</version>
+                        <configuration>
+                            <release>${maven.compiler.release}</release>
+                            <!-- JMH 靠注解处理器生成基准代码，必须显式声明，
+                                 否则 @Benchmark 方法会被完全忽略（而且不报错，很坑） -->
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.openjdk.jmh</groupId>
+                                    <artifactId>jmh-generator-annprocess</artifactId>
+                                    <version>1.37</version>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
